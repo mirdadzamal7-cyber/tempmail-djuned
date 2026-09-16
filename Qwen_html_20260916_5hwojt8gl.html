@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Djuned`s TempMail Pro + AI</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+    color: #fff;
+  }
+  .container { max-width: 1000px; margin: 0 auto; }
+  
+  .brand-header {
+    text-align: center;
+    margin-bottom: 25px;
+    padding: 15px;
+  }
+  .brand-header h1 {
+    font-size: 2.2em;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .brand-name {
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 900;
+    font-style: italic;
+  }
+  .brand-tagline {
+    font-size: 0.9em;
+    opacity: 0.8;
+    margin-top: 5px;
+    font-style: italic;
+  }
+  
+  .card {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(255,255,255,0.2);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  }
+  .email-display {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .email-box {
+    flex: 1;
+    min-width: 200px;
+    background: rgba(0,0,0,0.3);
+    padding: 15px;
+    border-radius: 8px;
+    font-size: 1.1em;
+    font-weight: bold;
+    word-break: break-all;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  button {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95em;
+    font-weight: bold;
+    transition: all 0.2s;
+  }
+  button:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-copy { background: #2196F3; }
+  .btn-refresh { background: #FF9800; }
+  .btn-new { background: #9C27B0; }
+  .btn-delete { background: #f44336; }
+  .btn-export { background: #009688; }
+  .btn-small { padding: 6px 12px; font-size: 0.85em; }
+  .btn-ai { background: linear-gradient(135deg, #4285f4, #34a853); }
+  
+  .status {
+    margin-top: 15px;
+    padding: 12px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 0.9em;
+  }
+  .status.info { background: rgba(33,150,243,0.3); border: 1px solid rgba(33,150,243,0.5); }
+  .status.success { background: rgba(76,175,80,0.3); border: 1px solid rgba(76,175,80,0.5); }
+  .status.error { background: rgba(244,67,54,0.3); border: 1px solid rgba(244,67,54,0.5); }
+  
+  .toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .toolbar h2 { font-size: 1.3em; }
+  .toolbar-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  
+  .toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85em;
+    cursor: pointer;
+  }
+  .toggle input { display: none; }
+  .toggle-slider {
+    width: 36px; height: 20px;
+    background: rgba(0,0,0,0.4);
+    border-radius: 20px;
+    position: relative;
+    transition: 0.3s;
+  }
+  .toggle-slider::after {
+    content: '';
+    position: absolute;
+    width: 16px; height: 16px;
+    background: #fff;
+    border-radius: 50%;
+    top: 2px; left: 2px;
+    transition: 0.3s;
+  }
+  .toggle input:checked + .toggle-slider { background: #4CAF50; }
+  .toggle input:checked + .toggle-slider::after { transform: translateX(16px); }
+  
+  .account-list, .message-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+  .account-item, .message-item {
+    background: rgba(0,0,0,0.25);
+    padding: 12px 15px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-left: 4px solid transparent;
+  }
+  .account-item:hover, .message-item:hover { background: rgba(0,0,0,0.4); }
+  .account-item.active { border-left-color: #4CAF50; background: rgba(76,175,80,0.2); }
+  .account-info, .message-info { flex: 1; min-width: 0; }
+  .account-email, .message-from { font-weight: bold; word-break: break-all; font-size: 0.95em; }
+  .message-from { color: #FFD700; margin-bottom: 4px; }
+  .account-meta, .message-subject { font-size: 0.8em; opacity: 0.7; margin-top: 3px; }
+  .message-subject { margin-bottom: 4px; }
+  .message-date { font-size: 0.8em; opacity: 0.7; }
+  .account-badge {
+    background: #f44336;
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.75em;
+    font-weight: bold;
+  }
+  .account-badge.new { background: #FF9800; animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+  .empty { text-align: center; padding: 40px 20px; opacity: 0.7; }
+  
+  .modal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.8);
+    z-index: 100;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+  .modal.active { display: flex; }
+  .modal-content {
+    background: #2a5298;
+    border-radius: 15px;
+    padding: 25px;
+    max-width: 700px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+  }
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+  .modal-header h3 { color: #FFD700; flex: 1; }
+  .modal-content .meta {
+    background: rgba(0,0,0,0.3);
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    font-size: 0.9em;
+  }
+  .modal-content .body {
+    background: #fff;
+    color: #333;
+    padding: 15px;
+    border-radius: 8px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    line-height: 1.6;
+  }
+  .modal-content iframe {
+    width: 100%;
+    min-height: 300px;
+    border: none;
+    background: #fff;
+    border-radius: 8px;
+  }
+  .modal-actions { display: flex; gap: 8px; margin-top: 15px; flex-wrap: wrap; }
+  .close-btn { background: #f44336; padding: 6px 12px; font-size: 0.85em; }
+  
+  .api-settings {
+    background: rgba(0,0,0,0.2);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+  }
+  .api-settings h3 { margin-bottom: 10px; font-size: 1.1em; color: #FFD700; }
+  .form-group { margin-bottom: 12px; }
+  .form-group label { display: block; margin-bottom: 5px; font-size: 0.9em; }
+  .form-group input, .form-group select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(0,0,0,0.3);
+    color: #fff;
+    font-size: 0.95em;
+  }
+  .form-group input:focus, .form-group select:focus { outline: none; border-color: #4CAF50; }
+  .form-group small { display: block; margin-top: 5px; font-size: 0.8em; opacity: 0.7; }
+  .form-group small a { color: #FFD700; }
+  .api-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.85em;
+    margin-top: 8px;
+  }
+  .api-status.connected { background: rgba(76,175,80,0.3); color: #4CAF50; }
+  .api-status.disconnected { background: rgba(244,67,54,0.3); color: #f44336; }
+  .api-status::before {
+    content: '';
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+  
+  .ai-summary {
+    background: linear-gradient(135deg, rgba(66,133,244,0.2), rgba(52,168,83,0.2));
+    border: 1px solid rgba(66,133,244,0.4);
+    padding: 12px;
+    border-radius: 8px;
+    margin-top: 12px;
+  }
+  .ai-summary h4 { color: #4285f4; margin-bottom: 8px; }
+  .ai-summary p { font-size: 0.9em; line-height: 1.5; }
+  .ai-loading { display: inline-flex; align-items: center; gap: 8px; }
+  .ai-loading::after {
+    content: '';
+    width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  
+  /* Warning box */
+  .warning-box {
+    background: rgba(255,152,0,0.2);
+    border: 1px solid rgba(255,152,0,0.5);
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    font-size: 0.9em;
+  }
+  .warning-box strong { color: #FFD700; }
+  .warning-box code {
+    background: rgba(0,0,0,0.3);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+  }
+  
+  .cors-indicator {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-size: 0.75em;
+    margin-left: 8px;
+  }
+  .cors-direct { background: rgba(76,175,80,0.3); }
+  .cors-proxy { background: rgba(255,152,0,0.3); }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="brand-header">
+    <h1>
+      <span></span>
+      <span><span class="brand-name">Djuned`s</span> TempMail Pro</span>
+      <span>🤖</span>
+    </h1>
+    <div class="brand-tagline">Powered by Djuned`s • AI-Enhanced Temporary Email</div>
+  </div>
+
+  <!-- CORS Warning -->
+  <div class="card" id="corsWarning" style="display:none;">
+    <div class="warning-box">
+      <strong>⚠️ Mode File Terdeteksi!</strong><br>
+      Anda membuka file ini langsung dari browser (<code>file:///</code>). 
+      Browser memblokir request ke API eksternal (CORS).<br><br>
+      <strong>Solusi:</strong><br>
+      1. Aplikasi akan otomatis menggunakan <strong>CORS Proxy</strong> (lebih lambat)<br>
+      2. Untuk performa terbaik, jalankan via local server:<br>
+         &nbsp;&nbsp;• <code>python3 -m http.server 8000</code><br>
+         &nbsp;&nbsp;• Atau gunakan VS Code Live Server<br>
+         &nbsp;&nbsp;• Atau upload ke hosting (Netlify, GitHub Pages, dll)
+    </div>
+  </div>
+
+  <!-- API Settings -->
+  <div class="card">
+    <div class="api-settings">
+      <h3>🤖 Google AI Studio Configuration</h3>
+      <div class="form-group">
+        <label for="apiKey">API Key:</label>
+        <input type="password" id="apiKey" placeholder="Masukkan Google AI Studio API Key">
+        <small>Dapatkan API key gratis di <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a></small>
+      </div>
+      <div class="form-group">
+        <label for="modelSelect">Model AI:</label>
+        <select id="modelSelect">
+          <option value="gemini-2.5-flash">Gemini 2.5 Flash (Terbaru & Tercepat)</option>
+          <option value="gemini-2.5-pro">Gemini 2.5 Pro (Paling Pintar)</option>
+          <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+          <option value="gemini-2.0-flash-lite">Gemini 2.0 Flash Lite</option>
+        </select>
+        <small>Model otomatis fallback jika satu gagal</small>
+      </div>
+      <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+        <button onclick="saveApiKey()"> Simpan API Key</button>
+        <button onclick="testApiKey()" class="btn-small"> Test Connection</button>
+        <div id="apiStatus" class="api-status disconnected">Not Connected</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Email Aktif -->
+  <div class="card">
+    <div class="email-display">
+      <div class="email-box" id="emailBox">Klik "Generate Email" untuk mulai...</div>
+      <button class="btn-copy" onclick="copyEmail()">📋 Copy</button>
+      <button class="btn-new" onclick="generateNew()">🔄 Generate</button>
+      <button class="btn-delete" id="btnDelete" onclick="deleteAccount()" style="display:none">️ Hapus</button>
+    </div>
+    <div class="status info" id="status">
+      Memeriksa koneksi...
+      <span id="corsBadge" class="cors-indicator cors-direct">Direct</span>
+    </div>
+  </div>
+
+  <!-- Daftar Akun -->
+  <div class="card">
+    <div class="toolbar">
+      <h2>👥 Akun Tersimpan (<span id="accountCount">0</span>)</h2>
+      <button class="btn-small btn-export" onclick="exportAllAccounts()">💾 Export Semua</button>
+    </div>
+    <div class="account-list" id="accountList">
+      <div class="empty">Belum ada akun tersimpan</div>
+    </div>
+  </div>
+
+  <!-- Inbox -->
+  <div class="card">
+    <div class="toolbar">
+      <h2>📥 Kotak Masuk</h2>
+      <div class="toolbar-actions">
+        <label class="toggle">
+          🔔
+          <input type="checkbox" id="notifToggle" onchange="toggleNotification()">
+          <span class="toggle-slider"></span>
+          <span>Notif</span>
+        </label>
+        <button class="btn-refresh btn-small" onclick="checkInbox()">🔄 Refresh</button>
+        <button class="btn-export btn-small" onclick="exportAllMessages()">💾 Export Semua</button>
+      </div>
+    </div>
+    <div class="message-list" id="messageList">
+      <div class="empty">Generate email terlebih dahulu</div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="modalSubject">Subject</h3>
+      <button class="close-btn" onclick="closeModal()">✕ Tutup</button>
+    </div>
+    <div class="meta" id="modalMeta"></div>
+    <div id="modalBody"></div>
+    <div id="aiSummarySection" style="display:none;">
+      <div class="ai-summary" id="aiSummaryContent">
+        <h4>🤖 AI Summary (by Djuned`s)</h4>
+        <div class="ai-loading">Menganalisis...</div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-ai btn-small" onclick="summarizeWithAI()"> AI Summarize</button>
+      <button class="btn-ai btn-small" onclick="translateWithAI()">🌐 Translate to ID</button>
+      <button class="btn-export btn-small" onclick="exportCurrentMessage()">💾 Export</button>
+      <button class="btn-small btn-delete" onclick="deleteCurrentMessage()">🗑️ Hapus</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==================== DETECT FILE PROTOCOL ====================
+const isFileProtocol = window.location.protocol === 'file:';
+if (isFileProtocol) {
+  document.getElementById('corsWarning').style.display = 'block';
+}
+
+// ==================== CORS PROXY CONFIG ====================
+// Daftar CORS proxy - akan dicoba satu per satu
+const CORS_PROXIES = [
+  url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+  url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  url => `https://cors-anywhere.herokuapp.com/${url}`,
+];
+
+const API_ENDPOINTS = [
+  'https://api.mail.tm',
+  'https://api.mail.gw'
+];
+
+const MODEL_FALLBACKS = [
+  'gemini-2.5-flash',
+  'gemini-2.5-pro',
+  'gemini-2.0-flash',
+  'gemini-2.0-flash-lite'
+];
+
+const STORAGE_KEY = 'tempmail_accounts_djuned';
+const AI_API_KEY_STORAGE = 'google_ai_api_key';
+const AI_MODEL_STORAGE = 'google_ai_model';
+
+let currentApiIndex = 0;
+let currentAccount = null;
+let knownMessageIds = new Set();
+let currentMessageId = null;
+let currentMessageData = null;
+let refreshInterval = null;
+let accounts = loadAccounts();
+let googleApiKey = localStorage.getItem(AI_API_KEY_STORAGE) || '';
+let selectedModel = localStorage.getItem(AI_MODEL_STORAGE) || 'gemini-2.5-flash';
+let useCorsProxy = isFileProtocol; // Auto-enable jika file://
+
+// ==================== FETCH WITH CORS FALLBACK ====================
+async function smartFetch(url, options = {}) {
+  // Coba direct dulu (kecuali file://)
+  if (!useCorsProxy) {
+    try {
+      const res = await fetch(url, options);
+      if (res.ok) return res;
+      // Jika 4xx/5xx, jangan retry dengan proxy
+      if (res.status < 500) return res;
+    } catch (e) {
+      // Network error = kemungkinan CORS, coba proxy
+      console.warn('Direct fetch failed, trying proxy:', e.message);
+      useCorsProxy = true;
+      updateCorsBadge();
+    }
+  }
+  
+  // Coba semua proxy
+  let lastError;
+  for (const proxyFn of CORS_PROXIES) {
+    try {
+      const proxiedUrl = proxyFn(url);
+      const res = await fetch(proxiedUrl, options);
+      if (res.ok) return res;
+    } catch (e) {
+      lastError = e;
+      console.warn('Proxy failed:', proxyFn.toString().substring(0, 50), e.message);
+    }
+  }
+  
+  throw new Error(`Semua metode gagal (direct + ${CORS_PROXIES.length} proxy). Terakhir: ${lastError?.message || 'unknown'}`);
+}
+
+function updateCorsBadge() {
+  const badge = document.getElementById('corsBadge');
+  if (badge) {
+    if (useCorsProxy) {
+      badge.textContent = 'Proxy Mode';
+      badge.className = 'cors-indicator cors-proxy';
+    } else {
+      badge.textContent = 'Direct';
+      badge.className = 'cors-indicator cors-direct';
+    }
+  }
+}
+
+// ==================== API REQUEST ====================
+async function apiRequest(endpoint, options = {}) {
+  let lastError;
+  for (let i = 0; i < API_ENDPOINTS.length; i++) {
+    const baseUrl = API_ENDPOINTS[(currentApiIndex + i) % API_ENDPOINTS.length];
+    const url = baseUrl + endpoint;
+    try {
+      const response = await smartFetch(url, options);
+      if (!response.ok) {
+        const errText = await response.text().catch(() => '');
+        throw new Error(`HTTP ${response.status}: ${errText.substring(0, 100)}`);
+      }
+      currentApiIndex = (currentApiIndex + i) % API_ENDPOINTS.length;
+      return await response.json();
+    } catch (e) {
+      lastError = e;
+      console.warn(`API ${baseUrl} failed:`, e.message);
+    }
+  }
+  throw new Error(lastError?.message || 'Semua API endpoint gagal');
+}
+
+async function getDomain() {
+  const data = await apiRequest('/domains');
+  const domains = data['hydra:member'] || data;
+  if (!domains || !domains.length) throw new Error('Tidak ada domain tersedia');
+  return domains[0].domain;
+}
+
+// ==================== AI FUNCTIONS ====================
+async function callGeminiAPI(model, prompt) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${googleApiKey}`;
+  const response = await smartFetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: { temperature: 0.7, maxOutputTokens: 1000 }
+    })
+  });
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error(err.error?.message || `HTTP ${response.status}`);
+  }
+  const data = await response.json();
+  return data.candidates?.[0]?.content?.parts?.[0]?.text;
+}
+
+async function summarizeWithAI() {
+  if (!googleApiKey) { alert('⚠️ Masukkan API Key dulu!'); return; }
+  if (!currentMessageData) return;
+  
+  const section = document.getElementById('aiSummarySection');
+  const content = document.getElementById('aiSummaryContent');
+  section.style.display = 'block';
+  content.innerHTML = '<h4>🤖 AI Summary (by Djuned`s)</h4><div class="ai-loading">Menganalisis email...</div>';
+  
+  const text = currentMessageData.text || 
+    (currentMessageData.html || []).join(' ').replace(/<[^>]*>/g, '').substring(0, 3000);
+  const prompt = `Ringkas email berikut dalam Bahasa Indonesia. Berikan:
+1. Tujuan utama email
+2. Poin-poin penting
+3. Tindakan yang diperlukan (jika ada)
+
+Email:
+${text}`;
+
+  let result = null, lastError = null;
+  for (const model of MODEL_FALLBACKS) {
+    try {
+      result = await callGeminiAPI(model, prompt);
+      break;
+    } catch (e) { lastError = e; }
+  }
+  
+  if (result) {
+    content.innerHTML = `<h4>🤖 AI Summary (by Djuned`s)</h4><p>${result.replace(/\n/g, '<br>')}</p>`;
+  } else {
+    content.innerHTML = `<h4>❌ AI Error</h4><p>${lastError?.message || 'Unknown error'}</p>`;
+  }
+}
+
+async function translateWithAI() {
+  if (!googleApiKey) { alert('⚠️ Masukkan API Key dulu!'); return; }
+  if (!currentMessageData) return;
+  
+  const section = document.getElementById('aiSummarySection');
+  const content = document.getElementById('aiSummaryContent');
+  section.style.display = 'block';
+  content.innerHTML = '<h4>🌐 Terjemahan (by Djuned`s)</h4><div class="ai-loading">Menerjemahkan...</div>';
+  
+  const text = currentMessageData.text || 
+    (currentMessageData.html || []).join(' ').replace(/<[^>]*>/g, '').substring(0, 3000);
+  const prompt = `Terjemahkan email berikut ke Bahasa Indonesia. Pertahankan format:
+
+${text}`;
+
+  let result = null, lastError = null;
+  for (const model of MODEL_FALLBACKS) {
+    try {
+      result = await callGeminiAPI(model, prompt);
+      break;
+    } catch (e) { lastError = e; }
+  }
+  
+  if (result) {
+    content.innerHTML = `<h4>🌐 Terjemahan (by Djuned`s)</h4><p>${result.replace(/\n/g, '<br>')}</p>`;
+  } else {
+    content.innerHTML = `<h4>❌ Error</h4><p>${lastError?.message || 'Unknown error'}</p>`;
+  }
+}
+
+// ==================== API KEY ====================
+function saveApiKey() {
+  const key = document.getElementById('apiKey').value.trim();
+  if (!key) { setStatus('❌ API Key kosong', 'error'); return; }
+  googleApiKey = key;
+  localStorage.setItem(AI_API_KEY_STORAGE, key);
+  checkApiStatus();
+  setStatus('✅ API Key tersimpan! - Djuned`s', 'success');
+}
+
+async function testApiKey() {
+  if (!googleApiKey) { setStatus(' Masukkan API Key dulu', 'error'); return; }
+  setStatus('🧪 Testing API connection...', 'info');
+  
+  for (const model of MODEL_FALLBACKS) {
+    try {
+      const result = await callGeminiAPI(model, 'Balas dengan "OK" saja');
+      if (result) {
+        document.getElementById('modelSelect').value = model;
+        selectedModel = model;
+        localStorage.setItem(AI_MODEL_STORAGE, model);
+        checkApiStatus();
+        setStatus(`✅ Connected! Model: ${model}`, 'success');
+        return;
+      }
+    } catch (e) {
+      console.warn(`Model ${model} gagal:`, e.message);
+    }
+  }
+  setStatus('❌ Semua model gagal. Periksa API key & koneksi internet.', 'error');
+}
+
+function checkApiStatus() {
+  const el = document.getElementById('apiStatus');
+  if (googleApiKey) {
+    el.textContent = 'Connected';
+    el.className = 'api-status connected';
+    document.getElementById('apiKey').value = googleApiKey;
+    document.getElementById('modelSelect').value = selectedModel;
+  } else {
+    el.textContent = 'Not Connected';
+    el.className = 'api-status disconnected';
+  }
+}
+
+// ==================== STORAGE ====================
+function loadAccounts() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+  catch { return []; }
+}
+function saveAccounts() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(accounts));
+}
+
+// ==================== UI ====================
+function setStatus(msg, type = 'info') {
+  const el = document.getElementById('status');
+  el.innerHTML = msg + ' <span id="corsBadge" class="cors-indicator ' + 
+    (useCorsProxy ? 'cors-proxy' : 'cors-direct') + '">' + 
+    (useCorsProxy ? 'Proxy' : 'Direct') + '</span>';
+  el.className = 'status ' + type;
+}
+function randomString(len = 12) {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let s = '';
+  for (let i = 0; i < len; i++) s += chars[Math.floor(Math.random() * chars.length)];
+  return s;
+}
+function escapeHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+
+// ==================== RENDER ====================
+function renderAccountList() {
+  const list = document.getElementById('accountList');
+  document.getElementById('accountCount').textContent = accounts.length;
+  if (!accounts.length) {
+    list.innerHTML = '<div class="empty">Belum ada akun tersimpan</div>';
+    return;
+  }
+  list.innerHTML = accounts.map(acc => {
+    const isActive = currentAccount && currentAccount.id === acc.id;
+    const unread = acc.unreadCount || 0;
+    return `
+      <div class="account-item ${isActive ? 'active' : ''}" onclick="switchAccount('${acc.id}')">
+        <div class="account-info">
+          <div class="account-email">${escapeHtml(acc.address)}</div>
+          <div class="account-meta">📅 ${new Date(acc.createdAt).toLocaleString('id-ID')}</div>
+        </div>
+        ${unread > 0 ? `<span class="account-badge new">${unread} baru</span>` : ''}
+        <button class="btn-small btn-delete" onclick="event.stopPropagation(); removeAccount('${acc.id}')">🗑️</button>
+      </div>
+    `;
+  }).join('');
+}
+
+// ==================== GENERATE ====================
+async function generateNew() {
+  try {
+    setStatus('Membuat email baru...', 'info');
+    const domain = await getDomain();
+    const username = randomString(10);
+    const address = username + '@' + domain;
+    const password = randomString(16);
+
+    const account = await apiRequest('/accounts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ address, password })
+    });
+    const tokenData = await apiRequest('/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ address, password })
+    });
+
+    const newAcc = {
+      id: account.id, address, password,
+      token: tokenData.token,
+      createdAt: new Date().toISOString(),
+      unreadCount: 0, knownIds: []
+    };
+    accounts.push(newAcc);
+    saveAccounts();
+    await switchAccount(newAcc.id);
+    setStatus('✅ Email berhasil dibuat! - Djuned`s', 'success');
+  } catch (e) {
+    setStatus('❌ ' + e.message, 'error');
+  }
+}
+
+async function switchAccount(id) {
+  const acc = accounts.find(a => a.id === id);
+  if (!acc) return;
+  currentAccount = acc;
+  knownMessageIds = new Set(acc.knownIds || []);
+  document.getElementById('emailBox').textContent = acc.address;
+  document.getElementById('btnDelete').style.display = 'inline-block';
+  renderAccountList();
+  startAutoRefresh();
+  await checkInbox();
+}
+
+function startAutoRefresh() {
+  if (refreshInterval) clearInterval(refreshInterval);
+  refreshInterval = setInterval(() => {
+    if (currentAccount) checkInbox(true);
+  }, 10000);
+}
+
+async function checkInbox(silent = false) {
+  if (!currentAccount) {
+    document.getElementById('messageList').innerHTML = '<div class="empty">Generate email terlebih dahulu</div>';
+    return;
+  }
+  if (!silent) setStatus('Memuat inbox...', 'info');
+
+  try {
+    const data = await apiRequest('/messages', {
+      headers: { 'Authorization': 'Bearer ' + currentAccount.token }
+    });
+    const messages = data['hydra:member'] || data;
+
+    const newMessages = messages.filter(m => !knownMessageIds.has(m.id));
+    if (newMessages.length > 0 && knownMessageIds.size > 0) {
+      currentAccount.unreadCount = (currentAccount.unreadCount || 0) + newMessages.length;
+      saveAccounts();
+      renderAccountList();
+      if (document.getElementById('notifToggle').checked) sendNotification(newMessages.length, newMessages[0]);
+    }
+    knownMessageIds = new Set(messages.map(m => m.id));
+    currentAccount.knownIds = [...knownMessageIds];
+    saveAccounts();
+
+    const list = document.getElementById('messageList');
+    if (!messages.length) {
+      list.innerHTML = '<div class="empty">📭 Belum ada email masuk. Menunggu...</div>';
+    } else {
+      list.innerHTML = messages.map(m => `
+        <div class="message-item" onclick="openMessage('${m.id}')">
+          <div class="message-info">
+            <div class="message-from"> ${escapeHtml(m.from?.name || m.from?.address || 'Unknown')}</div>
+            <div class="message-subject">📌 ${escapeHtml(m.subject || '(Tanpa Subjek)')}</div>
+            <div class="message-date">🕐 ${new Date(m.createdAt).toLocaleString('id-ID')}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+    if (!silent) setStatus(`✅ ${messages.length} pesan ditemukan`, 'success');
+  } catch (e) {
+    if (!silent) setStatus('❌ ' + e.message, 'error');
+  }
+}
+
+function toggleNotification() {
+  const enabled = document.getElementById('notifToggle').checked;
+  if (enabled && 'Notification' in window) {
+    Notification.requestPermission().then(perm => {
+      if (perm !== 'granted') {
+        document.getElementById('notifToggle').checked = false;
+        setStatus('❌ Izin notifikasi ditolak', 'error');
+      }
+    });
+  }
+}
+
+function sendNotification(count, firstMsg) {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  new Notification(`📧 ${count} email baru!`, {
+    body: firstMsg.subject || 'Email baru masuk',
+    tag: 'tempmail-new'
+  });
+}
+
+async function openMessage(id) {
+  currentMessageId = id;
+  try {
+    const msg = await apiRequest('/messages/' + id, {
+      headers: { 'Authorization': 'Bearer ' + currentAccount.token }
+    });
+    currentMessageData = msg;
+
+    document.getElementById('modalSubject').textContent = msg.subject || '(Tanpa Subjek)';
+    document.getElementById('modalMeta').innerHTML = `
+      <b>Dari:</b> ${escapeHtml(msg.from?.name || '')} &lt;${escapeHtml(msg.from?.address || '')}&gt;<br>
+      <b>Ke:</b> ${escapeHtml(msg.to?.[0]?.address || currentAccount.address)}<br>
+      <b>Tanggal:</b> ${new Date(msg.createdAt).toLocaleString('id-ID')}
+    `;
+
+    const bodyDiv = document.getElementById('modalBody');
+    const htmlPart = (msg.html || []).join('');
+    const textPart = msg.text || '';
+
+    if (htmlPart) {
+      bodyDiv.innerHTML = `<iframe id="msgFrame"></iframe>`;
+      const frame = document.getElementById('msgFrame');
+      frame.srcdoc = htmlPart;
+    } else {
+      bodyDiv.innerHTML = `<div class="body">${escapeHtml(textPart)}</div>`;
+    }
+
+    document.getElementById('aiSummarySection').style.display = 'none';
+    if (currentAccount.unreadCount > 0) {
+      currentAccount.unreadCount = 0;
+      saveAccounts();
+      renderAccountList();
+    }
+    document.getElementById('modal').classList.add('active');
+  } catch (e) { alert('Error: ' + e.message); }
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('active');
+  currentMessageId = null;
+  currentMessageData = null;
+}
+
+async function deleteAccount() {
+  if (!currentAccount) return;
+  if (!confirm('Hapus akun "' + currentAccount.address + '"?')) return;
+  try {
+    await apiRequest('/accounts/' + currentAccount.id, {
+      method: 'DELETE',
+      headers: { 'Authorization': 'Bearer ' + currentAccount.token }
+    });
+  } catch {}
+  removeAccount(currentAccount.id);
+}
+
+function removeAccount(id) {
+  accounts = accounts.filter(a => a.id !== id);
+  saveAccounts();
+  if (currentAccount && currentAccount.id === id) {
+    currentAccount = null;
+    knownMessageIds.clear();
+    if (refreshInterval) clearInterval(refreshInterval);
+    document.getElementById('emailBox').textContent = 'Klik "Generate Email" untuk mulai...';
+    document.getElementById('btnDelete').style.display = 'none';
+    document.getElementById('messageList').innerHTML = '<div class="empty">Generate email terlebih dahulu</div>';
+  }
+  renderAccountList();
+  setStatus('🗑️ Akun dihapus', 'info');
+}
+
+async function deleteCurrentMessage() {
+  if (!currentMessageId || !currentAccount) return;
+  if (!confirm('Hapus email ini?')) return;
+  try {
+    await apiRequest('/messages/' + currentMessageId, {
+      method: 'DELETE',
+      headers: { 'Authorization': 'Bearer ' + currentAccount.token }
+    });
+    closeModal();
+    checkInbox();
+  } catch (e) { alert('Error: ' + e.message); }
+}
+
+function copyEmail() {
+  if (!currentAccount) { setStatus('Generate email dulu!', 'error'); return; }
+  navigator.clipboard.writeText(currentAccount.address).then(() => {
+    setStatus('📋 Email disalin!', 'success');
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = currentAccount.address;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    setStatus('📋 Email disalin!', 'success');
+  });
+}
+
+function downloadFile(filename, content) {
+  const blob = new Blob([content], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function formatMessageAsText(msg) {
+  const text = msg.text || (msg.html || []).join('\n').replace(/<[^>]*>/g, '');
+  return `From: ${msg.from?.name || ''} <${msg.from?.address || ''}>
+To: ${msg.to?.map(t => t.address).join(', ') || ''}
+Subject: ${msg.subject || ''}
+Date: ${new Date(msg.createdAt).toLocaleString('id-ID')}
+----------------------------------------
+${text}`;
+}
+
+async function exportCurrentMessage() {
+  if (!currentMessageData) return;
+  downloadFile(`email_${currentMessageData.id}.txt`, formatMessageAsText(currentMessageData));
+  setStatus('💾 Email diekspor!', 'success');
+}
+
+async function exportAllMessages() {
+  if (!currentAccount) { setStatus('Generate email dulu!', 'error'); return; }
+  try {
+    const data = await apiRequest('/messages', {
+      headers: { 'Authorization': 'Bearer ' + currentAccount.token }
+    });
+    const messages = data['hydra:member'] || data;
+    if (!messages.length) { setStatus('Tidak ada email', 'info'); return; }
+    const details = await Promise.all(messages.map(m =>
+      apiRequest('/messages/' + m.id, {
+        headers: { 'Authorization': 'Bearer ' + currentAccount.token }
+      }).catch(() => m)
+    ));
+    const content = details.map(formatMessageAsText).join('\n\n========================================\n\n');
+    downloadFile(`inbox_${currentAccount.address}_${Date.now()}.txt`, content);
+    setStatus(`💾 ${details.length} email diekspor!`, 'success');
+  } catch (e) { setStatus('❌ ' + e.message, 'error'); }
+}
+
+function exportAllAccounts() {
+  if (!accounts.length) { setStatus('Tidak ada akun', 'info'); return; }
+  const content = accounts.map(a => 
+`Email: ${a.address}
+Password: ${a.password}
+Account ID: ${a.id}
+Created: ${new Date(a.createdAt).toLocaleString('id-ID')}
+----------------------------------------`
+  ).join('\n\n');
+  downloadFile(`tempmail_accounts_${Date.now()}.txt`, content);
+  setStatus(`💾 ${accounts.length} akun diekspor!`, 'success');
+}
+
+// ==================== INIT ====================
+document.getElementById('modal').addEventListener('click', e => {
+  if (e.target.id === 'modal') closeModal();
+});
+document.getElementById('modelSelect').addEventListener('change', (e) => {
+  selectedModel = e.target.value;
+  localStorage.setItem(AI_MODEL_STORAGE, selectedModel);
+});
+
+checkApiStatus();
+updateCorsBadge();
+renderAccountList();
+if (accounts.length > 0) switchAccount(accounts[0].id);
+</script>
+</body>
+</html>
